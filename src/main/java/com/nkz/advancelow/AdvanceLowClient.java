@@ -102,9 +102,9 @@ public class AdvanceLowClient implements ClientModInitializer {
         new Thread(() -> {
             try {
                 if (client.player != null) {
-                    client.player.sendCommand("home casa");
+                    client.getNetworkHandler().sendChatCommand("home casa");
                     Thread.sleep(6000);
-                    client.player.sendCommand("sit");
+                    client.getNetworkHandler().sendChatCommand("sit");
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -158,7 +158,7 @@ public class AdvanceLowClient implements ClientModInitializer {
             playerPos.x + MAX_REACH, playerPos.y + 2, playerPos.z + MAX_REACH
         );
         
-        for (Entity entity : player.getWorld().getEntities()) {
+        for (Entity entity : player.getWorld().iterateEntities()) {
             if (entity instanceof HostileEntity && entity.isAlive()) {
                 double distance = playerPos.distanceTo(entity.getPos());
                 if (distance <= MAX_REACH) {
