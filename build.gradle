@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'fabric-loom' version '1.11-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -19,13 +19,13 @@ repositories {
 }
 
 dependencies {
-    // SOLO dependencias BÁSICAS
-    minecraft "com.mojang:minecraft:\${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:\${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:\${project.loader_version}"
+    // Dependencias de Minecraft y Fabric
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     
-    // NO usar Fabric API inicialmente
-    // modImplementation "net.fabricmc.fabric-api:fabric-api:\${project.fabric_version}"
+    // Fabric API
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
 processResources {
@@ -50,6 +50,6 @@ java {
 
 jar {
     from("LICENSE") {
-        rename { "\${it}_\${project.base.archivesName.get()}"}
+        rename { "${it}_${project.base.archivesName.get()}"}
     }
 }

@@ -1,0 +1,31 @@
+﻿To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+.\gradlew : 
+En C:\Users\neokey\Desktop\AdvanceLow\compile.ps1: 38 Carácter: 11
++ $output = .\gradlew clean build --no-daemon --refresh-dependencies 2> ...
++           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem occurred configuring root project 'advancelow'.
+> Could not resolve all artifacts for configuration ':classpath'.
+   > Could not resolve net.fabricmc:fabric-loom:1.11-SNAPSHOT.
+     Required by:
+         root project : > fabric-loom:fabric-loom.gradle.plugin:1.11-SNAPSHOT:20250903.082645-8
+      > Plugin net.fabricmc:fabric-loom:1.11-SNAPSHOT:20250903.082645-8 requires at least Gradle 8.14. This build uses 
+Gradle 8.10.2.
+
+* Try:
+> Upgrade to at least Gradle 8.14. See the instructions at 
+https://docs.gradle.org/8.10.2/userguide/upgrading_version_8.html#sub:updating-gradle.
+> Downgrade plugin net.fabricmc:fabric-loom:1.11-SNAPSHOT:20250903.082645-8 to an older version compatible with Gradle 
+8.10.2.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 22s

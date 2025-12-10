@@ -3,11 +3,9 @@
   "id": "advancelow",
   "version": "${version}",
   "name": "AdvanceLow",
-  "description": "Mod educativo para investigación en detección de cheats",
+  "description": "Mod educativo para investigación en ciberseguridad",
   "authors": ["NKZ"],
-  "contact": {
-    "sources": ""
-  },
+  "contact": {},
   "license": "EDUCATIONAL-USE-ONLY",
   "icon": "assets/advancelow/icon.png",
   "environment": "*",
@@ -29,7 +27,7 @@
   },
   "custom": {
     "warnings": {
-      "SECURITY": "ESTE MOD ES SOLO PARA USO EDUCATIVO EN ENTORNOS CONTROLADOS"
+      "SECURITY": "USO EXCLUSIVO EN ENTORNO CONTROLADO DE INVESTIGACIÓN"
     }
   }
 }
