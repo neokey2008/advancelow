@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.nkz.advancelow.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [],
+  "client": [
+    "AttackReachMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

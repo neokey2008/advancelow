@@ -1,41 +1,35 @@
 {
-	"schemaVersion": 1,
-	"id": "modid",
-	"version": "${version}",
-	"name": "Example mod",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/modid/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"com.example.ExampleMod"
-		],
-		"client": [
-			"com.example.ExampleModClient"
-		]
-	},
-	"mixins": [
-		"modid.mixins.json",
-		{
-			"config": "modid.client.mixins.json",
-			"environment": "client"
-		}
-	],
-	"depends": {
-		"fabricloader": ">=0.18.2",
-		"minecraft": "~1.21.11",
-		"java": ">=21",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
-	}
+  "schemaVersion": 1,
+  "id": "advancelow",
+  "version": "${version}",
+  "name": "AdvanceLow",
+  "description": "Mod educativo para investigación en detección de cheats",
+  "authors": ["NKZ"],
+  "contact": {
+    "sources": ""
+  },
+  "license": "EDUCATIONAL-USE-ONLY",
+  "icon": "assets/advancelow/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.nkz.advancelow.AdvanceLow"],
+    "client": ["com.nkz.advancelow.AdvanceLowClient"]
+  },
+  "mixins": [
+    {
+      "config": "advancelow.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "minecraft": "~1.21.8",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "custom": {
+    "warnings": {
+      "SECURITY": "ESTE MOD ES SOLO PARA USO EDUCATIVO EN ENTORNOS CONTROLADOS"
+    }
+  }
 }
