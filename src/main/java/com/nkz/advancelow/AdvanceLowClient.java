@@ -1,28 +1,19 @@
 package com.nkz.advancelow;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class AdvanceLowClient implements ClientModInitializer {
     
     private static final Set<String> STAFF_RANKS = new HashSet<>(Arrays.asList(
         "MODERADOR", "MOD", "T-HELPER", "ADMIN", "OWNER", 
-        "HELPER", "S-MANAGER", "STAFF", "MANAGER", "S-MOD",
-        "T-MOD", "JR.MOD", "SR.MOD", "BUILDER", "DEV"
+        "HELPER", "S-MANAGER", "STAFF", "MANAGER"
     ));
     
     private static boolean reachEnabled = true;
@@ -30,48 +21,42 @@ public class AdvanceLowClient implements ClientModInitializer {
     private static long lastAttackTime = 0;
     private static int tickCounter = 0;
     private static final Random random = new Random();
-    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
     
-    // Configuración
     private static final double MAX_REACH = 4.5;
     private static final double VANILLA_REACH = 3.0;
     private static final float ATTACK_ANGLE = 180.0f;
-    private static final int ATTACK_DELAY_MIN = 600;
-    private static final int ATTACK_DELAY_MAX = 1200;
+    
+    // Thread para ticks manuales
+    private static Thread tickThread;
     
     @Override
     public void onInitializeClient() {
-        System.out.println("[AdvanceLow] Inicializando mod educativo - Propiedad de NKZ");
-        System.out.println("[AdvanceLow] Entorno controlado de investigación");
+        System.out.println("[AdvanceLow] Mod educativo cargado - Propiedad de NKZ");
+        System.out.println("[AdvanceLow] Uso exclusivo: Laboratorio de ciberseguridad");
         
-        // Registrar eventos
-        ClientTickEvents.END_CLIENT_TICK.register(this::onClientTick);
-        ClientPlayConnectionEvents.JOIN.register(this::onServerJoin);
-        
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            scheduler.shutdown();
-            System.out.println("[AdvanceLow] Mod detenido");
-        }));
+        // Iniciar sistema de ticks manual
+        startTickSystem();
     }
     
-    private void onServerJoin(ClientPlayNetworkHandler handler, MinecraftClient client) {
-        // Resetear estado
-        reachEnabled = true;
-        commandsExecuted = false;
-        lastAttackTime = 0;
-        tickCounter = 0;
-        
-        System.out.println("[AdvanceLow] Conectado al servidor");
-        
-        // Detectar staff después de 5 segundos
-        scheduler.schedule(() -> {
-            if (client.player != null && client.world != null) {
-                checkForStaff(client);
+    private void startTickSystem() {
+        tickThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(50); // ~20 ticks por segundo
+                    onTick();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
-        }, 5, TimeUnit.SECONDS);
+        });
+        tickThread.setDaemon(true);
+        tickThread.setName("AdvanceLow-Tick");
+        tickThread.start();
     }
     
-    private void onClientTick(MinecraftClient client) {
+    private void onTick() {
+        MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null || !reachEnabled) {
             return;
         }
@@ -90,22 +75,16 @@ public class AdvanceLowClient implements ClientModInitializer {
     }
     
     private void checkForStaff(MinecraftClient client) {
-        if (client.getNetworkHandler() == null) return;
-        
-        for (PlayerListEntry entry : client.getNetworkHandler().getPlayerList()) {
-            String displayName = entry.getDisplayName() != null ? 
-                entry.getDisplayName().getString() : entry.getProfile().getName();
-            
-            String upperName = displayName.toUpperCase();
-            for (String rank : STAFF_RANKS) {
-                if (upperName.contains("[" + rank + "]") || 
-                    upperName.contains(rank + "]") ||
-                    upperName.contains(" " + rank + " ") ||
-                    upperName.startsWith(rank + " ")) {
-                    
-                    System.out.println("[AdvanceLow] Staff detectado: " + displayName);
-                    handleStaffDetection(client);
-                    return;
+        // Método simple para detectar staff
+        // En entorno real usaría API específica del servidor
+        if (client.world != null) {
+            for (var player : client.world.getPlayers()) {
+                String name = player.getName().getString().toUpperCase();
+                for (String rank : STAFF_RANKS) {
+                    if (name.contains(rank)) {
+                        handleStaffDetection(client);
+                        return;
+                    }
                 }
             }
         }
@@ -119,25 +98,23 @@ public class AdvanceLowClient implements ClientModInitializer {
         
         System.out.println("[AdvanceLow] ⚠️ STAFF DETECTADO - Desactivando funciones");
         
-        // Ejecutar comandos en orden
-        scheduler.schedule(() -> {
-            if (client.player != null) {
-                client.player.sendCommand("home casa");
-                System.out.println("[AdvanceLow] Comando ejecutado: /home casa");
+        // Ejecutar comandos
+        new Thread(() -> {
+            try {
+                if (client.player != null) {
+                    client.player.sendCommand("home casa");
+                    Thread.sleep(6000);
+                    client.player.sendCommand("sit");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-        }, 0, TimeUnit.SECONDS);
-        
-        scheduler.schedule(() -> {
-            if (client.player != null) {
-                client.player.sendCommand("sit");
-                System.out.println("[AdvanceLow] Comando ejecutado: /sit");
-            }
-        }, 6, TimeUnit.SECONDS);
+        }).start();
     }
     
     private boolean shouldAttack() {
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastAttackTime < getNextAttackDelay()) {
+        if (currentTime - lastAttackTime < 600) {
             return false;
         }
         
@@ -154,11 +131,12 @@ public class AdvanceLowClient implements ClientModInitializer {
         if (!targets.isEmpty()) {
             Entity target = targets.get(0);
             
-            // Rotación natural
+            // Rotación suave
             rotateToTarget(player, target);
             
-            // Ataque con criticals sin saltar
-            performCriticalAttack(player, target);
+            // Ataque
+            player.attack(target);
+            player.swingHand(player.getActiveHand());
             
             lastAttackTime = System.currentTimeMillis();
             
@@ -181,11 +159,9 @@ public class AdvanceLowClient implements ClientModInitializer {
         );
         
         for (Entity entity : player.getWorld().getEntities()) {
-            if (entity instanceof HostileEntity && entity.isAlive() && !entity.isRemoved()) {
+            if (entity instanceof HostileEntity && entity.isAlive()) {
                 double distance = playerPos.distanceTo(entity.getPos());
-                double angle = calculateAngle(player, entity);
-                
-                if (distance <= MAX_REACH && Math.abs(angle) <= ATTACK_ANGLE / 2) {
+                if (distance <= MAX_REACH) {
                     targets.add(entity);
                 }
             }
@@ -193,12 +169,6 @@ public class AdvanceLowClient implements ClientModInitializer {
         
         targets.sort(Comparator.comparingDouble(e -> playerPos.distanceTo(e.getPos())));
         return targets;
-    }
-    
-    private double calculateAngle(PlayerEntity player, Entity target) {
-        Vec3d lookVec = player.getRotationVec(1.0F);
-        Vec3d targetVec = target.getPos().subtract(player.getPos()).normalize();
-        return Math.toDegrees(Math.acos(lookVec.dotProduct(targetVec)));
     }
     
     private void rotateToTarget(PlayerEntity player, Entity target) {
@@ -211,22 +181,8 @@ public class AdvanceLowClient implements ClientModInitializer {
         float yaw = (float) Math.toDegrees(Math.atan2(diff.z, diff.x)) - 90;
         float pitch = (float) -Math.toDegrees(Math.atan2(diff.y, distHorizontal));
         
-        // Rotación suave (40% por tick)
         player.setYaw(player.getYaw() + clampAngle(yaw - player.getYaw()) * 0.4f);
         player.setPitch(player.getPitch() + clampAngle(pitch - player.getPitch()) * 0.4f);
-    }
-    
-    private void performCriticalAttack(PlayerEntity player, Entity target) {
-        // Critical sin saltar (método alternativo)
-        if (player.isOnGround() && player.fallDistance > 0.0F) {
-            player.attack(target);
-            player.swingHand(player.getActiveHand());
-        } else {
-            // Simular critical con pequeño impulso
-            player.setVelocity(player.getVelocity().x, 0.1, player.getVelocity().z);
-            player.attack(target);
-            player.swingHand(player.getActiveHand());
-        }
     }
     
     private float clampAngle(float angle) {
@@ -236,11 +192,6 @@ public class AdvanceLowClient implements ClientModInitializer {
         return angle;
     }
     
-    private int getNextAttackDelay() {
-        return ATTACK_DELAY_MIN + random.nextInt(ATTACK_DELAY_MAX - ATTACK_DELAY_MIN);
-    }
-    
-    // Métodos para integración
     public static boolean isReachEnabled() {
         return reachEnabled;
     }
